@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Welcome
+{% endblock %}
+
+{% block main %}
+
+
+<div> </div>
+<div> </div>
+<div> </div>
+<div> <h1>Portfolio of username: {{ username }}</h1> </div>
+
+
+<table>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Share</th>
+      <th>Current Price</th>
+      <th>Value</th>
+
+    </tr>
+    {% for row in rows %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] | usd  }}</td>
+            <td>{{ row[4] | usd }}</td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td style="text-align:right; font-weight: bold;" colspan="4">Stock: </td>
+        <td style= "font-weight: bold;"> {{ SumOfStocks }} </td>
+    </tr>
+    <tr>
+        <td style="text-align:right; font-weight: bold;" colspan="4">Cash: </td>
+        <td style= "font-weight: bold;"> {{ cash | usd }} </td>
+    </tr>
+    <tr>
+        <td style="text-align:right; font-weight: bold;" colspan="4">Total: </td>
+        <td style= "font-weight: bold;"> {{ SumOfAllHoldings }} </td>
+    </tr>
+</table>
+
+{% endblock %}

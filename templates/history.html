@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Welcome
+{% endblock %}
+
+{% block main %}
+
+
+<div> </div>
+<div> </div>
+<div> </div>
+<div> <h1>Transaction history for username: {{ username }}</h1> </div>
+
+
+<table>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Share</th>
+      <th>Price</th>
+      <th>Transaction time </th>
+
+    </tr>
+    {% for row in rows %}
+        <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] | usd }}</td>
+                <td>{{ row[4] }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
