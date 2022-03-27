@@ -45,19 +45,35 @@ Session(app)
 db = SQL(os.environ["DATABASE_URL"])
 
 
-# Make sure API key is set
-if not os.environ.get("API_KEY"):
-    raise RuntimeError("API_KEY not set")
+# start
+# added the below as part of Heroku post on Medium
+class SQL(object):
+    def __init__(self, url):
+        try:
+            self.engine = sqlalchemy.create_engine(url)
+        except Exception as e:
+            raise RuntimeError(e)
+    def execute(self, text, *multiparams, **params):
+        try:
+            statement = sqlalchemy.text(text).bindparams(*multiparams, **params)
+            result = self.engine.execute(str(statement.compile(compile_kwargs={"literal_binds": True})))
+            # SELECT
+            if result.returns_rows:
+                rows = result.fetchall()
+                return [dict(row) for row in rows]
+            # INSERT
+            elif result.lastrowid is not None:
+                return result.lastrowid
+            # DELETE, UPDATE
+            else:
+                return result.rowcount
+        except sqlalchemy.exc.IntegrityError:
+            return None
+        except Exception as e:
+            raise RuntimeError(e)
+# end
 
-
-@app.after_request
-def after_request(response):
-    """Ensure responses aren't cached"""
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
-
+################################################################################
 
 @app.route("/")
 @login_required
@@ -100,6 +116,7 @@ def index():
 
     return render_template("index.html", rows=rows, cash=cash, username=username, SumOfAllHoldings=usd(SumOfAllHoldings), SumOfStocks=usd(SumOfStocks[0]['SumOfStocks']))
 
+##############################################################
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -152,6 +169,7 @@ def buy():
     else:
         return render_template("buy.html")
 
+###########################################################
 
 @app.route("/history")
 @login_required
@@ -181,6 +199,7 @@ def history():
 
     return render_template("history.html", rows=rows, username=username)
 
+######################################################################
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -216,7 +235,8 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html")
-
+     
+######################################################
 
 @app.route("/logout")
 def logout():
@@ -227,6 +247,8 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+   
+#####################################################
 
 
 @app.route("/quote", methods=["GET", "POST"])
@@ -246,6 +268,8 @@ def quote():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("quote.html")
+     
+####################################################################
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -289,6 +313,7 @@ def register():
     else:
         return render_template("register.html")
 
+######################################################
 
 @app.route("/password", methods=["GET", "POST"])
 def password():
@@ -332,7 +357,8 @@ def password():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("password.html")
-
+     
+#####################################################
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
@@ -409,7 +435,19 @@ def sell():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("sell.html", rows=rows)
-    
+
+############################################
+     
+def errorhandler(e):
+    """Handle error"""
+    return apology(e.name, e.code)
+
+
+# listen for errors
+for code in default_exceptions:
+    app.errorhandler(code)(errorhandler)
+
+
             
              # start
 # added the below as part of Heroku post on Medium
