@@ -25,8 +25,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")
+uri = os.getenv("postgres://zpgokhlcubmlhb:0cbc1a0c6ec41d9677d183598e6374de59c6cee4afe6c0df1030b9b0d551828c@ec2-63-32-248-14.eu-west-1.compute.amazonaws.com:5432/dap26ggepgb70s")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://")
+db = SQL(uri)
 
 
 # Make sure API key is set
