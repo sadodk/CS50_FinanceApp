@@ -5,9 +5,9 @@ A virtual stock trading web app built with Python (Flask/Jinja2), SQLite3 (local
 
 Functionalities:
 
-Log in/Register: Create and log in to an account
-Quote: Query stock price
-Buy: Buy shares of stock
-Sell: Sell shares of stock
-History: View transaction history
-Admin: Delete selected user accounts along with transaction history
+- Log in/Register: Create and log in to an account
+- Quote: Query stock price
+- Buy: Buy shares of stock
+- Sell: Sell shares of stock
+- History: View transaction history
+- Password: Change password for user
