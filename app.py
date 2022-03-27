@@ -41,10 +41,8 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-uri = os.getenv("DATABASE_URL")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://")
-db = SQL(uri)
+# Configure CS50 Library to use SQLite database
+db = SQL(os.environ["DATABASE_URL"])
 
 
 # Make sure API key is set
@@ -412,7 +410,11 @@ def sell():
     else:
         return render_template("sell.html", rows=rows)
     
- if __name__ == ‘__main__’:
+            
+             # start
+# added the below as part of Heroku post on Medium
+if __name__ == '__main__':
      app.debug = True
-     port = int(os.environ.get(“PORT”, 5000))
-     app.run(host=’0.0.0.0', port=port)
+     port = int(os.environ.get("PORT", 5000))
+     app.run(host='0.0.0.0', port=port)
+# end
