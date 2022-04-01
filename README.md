@@ -1,6 +1,8 @@
 # CS50_FinanceApp
 Open Source finance app
 
+![Screenshot](Finance_app.png)
+
 A virtual stock trading web app built with Python (Flask/Jinja2), SQLite3 (local), and Bootstrap, deployed to Heroku. Stock prices from IEX API.
 
 Functionalities:
