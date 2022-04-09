@@ -1,5 +1,5 @@
 # CS50_FinanceApp
-Open Source finance app
+Open Source finance trading stock app. Developed in ![](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
 
 ![Screenshot](Finance_app.png)
 
