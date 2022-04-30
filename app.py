@@ -1,6 +1,6 @@
 import os
 
-from library50 import cs50
+from cs50 import SQL
 import sqlite3 as sql
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
@@ -8,22 +8,6 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required, lookup, usd
-
-
-# start
-# added the below as part of Heroku post on Medium
-import urllib.parse
-import psycopg2
-urllib.parse.uses_netloc.append("postgres")
-url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
-conn = psycopg2.connect(
- database=url.path[1:],
- user=url.username,
- password=url.password,
- host=url.hostname,
- port=url.port
-)
-# end
 
 # Configure application
 app = Flask(__name__)
@@ -42,38 +26,22 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL(os.environ["DATABASE_URL"])
+db = SQL("sqlite:///finance.db")
 
 
-# start
-# added the below as part of Heroku post on Medium
-class SQL(object):
-    def __init__(self, url):
-        try:
-            self.engine = sqlalchemy.create_engine(url)
-        except Exception as e:
-            raise RuntimeError(e)
-    def execute(self, text, *multiparams, **params):
-        try:
-            statement = sqlalchemy.text(text).bindparams(*multiparams, **params)
-            result = self.engine.execute(str(statement.compile(compile_kwargs={"literal_binds": True})))
-            # SELECT
-            if result.returns_rows:
-                rows = result.fetchall()
-                return [dict(row) for row in rows]
-            # INSERT
-            elif result.lastrowid is not None:
-                return result.lastrowid
-            # DELETE, UPDATE
-            else:
-                return result.rowcount
-        except sqlalchemy.exc.IntegrityError:
-            return None
-        except Exception as e:
-            raise RuntimeError(e)
-# end
+# Make sure API key is set
+if not os.environ.get("API_KEY"):
+    raise RuntimeError("API_KEY not set")
 
-################################################################################
+
+@app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
 
 @app.route("/")
 @login_required
@@ -116,7 +84,6 @@ def index():
 
     return render_template("index.html", rows=rows, cash=cash, username=username, SumOfAllHoldings=usd(SumOfAllHoldings), SumOfStocks=usd(SumOfStocks[0]['SumOfStocks']))
 
-##############################################################
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -169,7 +136,6 @@ def buy():
     else:
         return render_template("buy.html")
 
-###########################################################
 
 @app.route("/history")
 @login_required
@@ -199,7 +165,6 @@ def history():
 
     return render_template("history.html", rows=rows, username=username)
 
-######################################################################
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -235,8 +200,7 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html")
-     
-######################################################
+
 
 @app.route("/logout")
 def logout():
@@ -247,8 +211,6 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
-   
-#####################################################
 
 
 @app.route("/quote", methods=["GET", "POST"])
@@ -268,8 +230,6 @@ def quote():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("quote.html")
-     
-####################################################################
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -313,7 +273,6 @@ def register():
     else:
         return render_template("register.html")
 
-######################################################
 
 @app.route("/password", methods=["GET", "POST"])
 def password():
@@ -357,8 +316,7 @@ def password():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("password.html")
-     
-#####################################################
+
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
@@ -435,24 +393,3 @@ def sell():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("sell.html", rows=rows)
-
-############################################
-     
-def errorhandler(e):
-    """Handle error"""
-    return apology(e.name, e.code)
-
-
-# listen for errors
-for code in default_exceptions:
-    app.errorhandler(code)(errorhandler)
-
-
-            
-             # start
-# added the below as part of Heroku post on Medium
-if __name__ == '__main__':
-     app.debug = True
-     port = int(os.environ.get("PORT", 5000))
-     app.run(host='0.0.0.0', port=port)
-# end
